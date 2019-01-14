@@ -1,6 +1,7 @@
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
 const {Todo} = require('./../models/Todo');
 const {app} = require('./../server');
@@ -95,5 +96,31 @@ describe('GET /todos/id', () => {
             .expect(404)
             .end(done);
 
+    });
+});
+
+describe('DELETE /todos/id', () => {
+    it('Should delete a todo item', (done) => {
+        request(app)
+            .delete(`/todos/${todos[0]._id}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(todos[0].text);
+            })
+            .end(done);
+    });
+
+    it('Should get a 404 if id is invalid', (done) => {
+        request(app)
+            .delete(`/todos/123`)
+            .expect(404)
+            .end(done);
+    });
+    it('Should get a 404 if todo not found', (done) => {
+        const _id = new ObjectID();
+        request(app)
+            .delete(`/todos/${_id}`)
+            .expect(404)
+            .end(done);
     });
 });
